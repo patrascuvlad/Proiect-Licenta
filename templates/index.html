@@ -220,7 +220,10 @@ Dashboard
                       {% endif %}
                       {%- if entry._id['author.gender'] %}
                         <li>
-                          Gen Autor: {{entry._id['author.gender']}}
+                          Gen Autor:
+                          {%- if entry._id['author.gender'] == "male" %} Masculin
+                          {% elif entry._id['author.gender'] == "female" %} Feminin
+                          {% else %} {{entry._id['author.gender']}} {% endif %}
                         </li>
                       {% endif %}
                       {%- if entry._id['author.age'] %}

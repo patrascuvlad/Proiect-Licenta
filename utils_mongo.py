@@ -244,7 +244,7 @@ def search_mongodb(selectBy, groupBy):
   # print "MONGO query executed in ", filterTime
 
   listDocs = list(docs)
-  print listDocs
+  # print listDocs
   client.close()
   avgTime /= 5
   print "MONGO avg time: ", avgTime
