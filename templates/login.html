@@ -1,0 +1,71 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Licenta - Login
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='app_auth.css')}}">
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+
+    <form class="form-signin p-15" method="POST" action="/login">
+      <h2 class="form-signin-heading">Autentificare</h2>
+      {% with danger = get_flashed_messages(category_filter=["danger"]) %}
+        {% if danger %}
+          {% for message in danger %}
+            <div class="alert alert-danger alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              {{message}}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% with warning = get_flashed_messages(category_filter=["warning"]) %}
+        {% if warning %}
+          {% for message in warning %}
+            <div class="alert alert-warning alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              {{message}}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% with success = get_flashed_messages(category_filter=["success"]) %}
+        {% if success %}
+          {% for message in success %}
+            <div class="alert alert-success alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              {{message}}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {{ form.hidden_tag() }}
+      {{ wtf.form_field(form.username) }}
+      {{ wtf.form_field(form.password) }}
+      <button class="btn btn-lg btn-primary btn-block" type="submit" name="submit">Confirmare</button>
+    </form>
+    <form class="form-signin pl-15 pr-15 mb-15" method="POST" action="/login">
+      <button class="btn btn-lg btn-success btn-block" type="submit" name="submit" value="register">Inregistrare</button>
+    </form>
+
+  </div> <!-- /container -->
+
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    $(".alert-dismissible").delay(4000).slideUp(200, function() {
+      $(this).alert('close');
+    });
+  </script>
+{% endblock %}

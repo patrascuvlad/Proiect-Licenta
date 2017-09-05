@@ -1,0 +1,31 @@
+body > div.container {
+  margin-top: 70px;
+}
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+}
+.hide {
+  display: none;
+}
+.full-width {
+  width: 100%;
+}
+@media only screen and (min-width: 768px) {
+  .full-width {
+    width: calc(100% - 134px);
+  }
+}
+.ml-5 {
+  margin-left: 5px;
+}
+.no-padding {
+  padding: 0px;
+}
+.no-side-margin {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+.mb-10 {
+  margin-bottom: 10px;
+}

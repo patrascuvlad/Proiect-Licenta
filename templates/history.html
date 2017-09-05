@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Istoric
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h2>Istoric Filtrari</h2>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th colspan="2">Conectare</th>
+          <th colspan="2">Filtrare</th>
+        </tr>
+        <tr>
+          <th>MongoDB</th>
+          <th>PostgreSQL</th>
+          <th>MongoDB</th>
+          <th>PostgreSQL</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in history %}
+          <tr>
+            <td>{{entry.connectTimes[0]}}</td>
+            <td>{{entry.connectTimes[1]}}</td>
+            <td>{{entry.filterTimes[0]}}</td>
+            <td>{{entry.filterTimes[1]}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
