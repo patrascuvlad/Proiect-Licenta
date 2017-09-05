@@ -86,6 +86,7 @@ def get_user_history(username):
   client.close()
   return docs.sort('date', -1)
 
+# LOCK FUNCTION (no more changes)
 def populate_mongodb():
   csv.field_size_limit(sys.maxsize)
   client, table = connect_mongodb()
@@ -99,6 +100,7 @@ def populate_mongodb():
   client.close()
 
 # process row for mongodb function
+# LOCK FUNCTION (no more changes)
 def process_mongodb_row(row):
   location = ast.literal_eval(row[columns.index("geoLocation")])
   result = {}

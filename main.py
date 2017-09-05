@@ -44,9 +44,11 @@ class RegisterForm(FlaskForm):
   username = StringField('Utilizator', validators=[InputRequired(), Length(min=4, max=15)])
   password = PasswordField('Parola', validators=[InputRequired(), Length(min=8, max=80)])
 
+# LOCK SECTION (no more changes)
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
+# UNLOCK SECTION
   print 'PROCESSING REQUEST'
   print "--------------------------------------------------"
 
@@ -147,12 +149,15 @@ def index():
 
   return render_template("index.html", user=current_user.get_id(), form=form, times={}, data={})
 
+# LOCK SECTION (no more changes)
 @app.route('/history')
 @login_required
 def history():
+# UNLOCK SECTION
   history = get_user_history(current_user.get_id())
   return render_template("history.html", user=current_user.get_id(), history=history)
 
+# LOCK FUNCTION (no more changes)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
   form = LoginForm()
@@ -172,6 +177,7 @@ def login():
 
   return render_template('login.html', form=form)
 
+# LOCK FUNCTION (no more changes)
 @app.route('/register', methods=['GET', 'POST'])
 def register():
   form = RegisterForm()
@@ -192,6 +198,7 @@ def register():
 
   return render_template('register.html', form=form)
 
+# LOCK FUNCTION (no more changes)
 @app.route('/logout')
 def logout():
   logout_user()

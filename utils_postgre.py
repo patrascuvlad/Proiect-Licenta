@@ -19,6 +19,7 @@ def connect_postgresql():
   conn = psycopg2.connect("host='localhost' dbname='postgres' user='postgres' password='password'")
   return conn
 
+# LOCK FUNCTION (no more changes)
 def populate_postgresql():
   csv.field_size_limit(sys.maxsize)
   conn = connect_postgresql()
@@ -45,6 +46,7 @@ def populate_postgresql():
 def process_postgresql_row(cursor, row, author_dim, word_dim, location_dim, doc_dim, date_dim):
   facts = []
 
+  # LOCK SECTION (no more changes)
   author_id = row[columns.index("author")]
   if author_id not in author_dim:
     author_dim[author_id] = {}
@@ -72,7 +74,9 @@ def process_postgresql_row(cursor, row, author_dim, word_dim, location_dim, doc_
   if date not in date_dim:
     date_dim[date] = len(date_dim) + 1
     cursor.execute(insert_date_query, (date_dim[date], date))
+  # UNLOCK SECTION
 
+  # LOCK SECTION (no more changes)
   words = process_text(row[columns.index("rawText")])
   for word in words:
     if word["word"] not in word_dim:
@@ -87,6 +91,7 @@ def process_postgresql_row(cursor, row, author_dim, word_dim, location_dim, doc_
       'id_author': author_id,
       'id_location': location_dim[location]["id"]
     })
+  # UNLOCK SECTION
 
   return facts, author_dim, word_dim, location_dim, doc_dim, date_dim
 

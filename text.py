@@ -168,6 +168,7 @@ def expand_contractions(text):
 def process_text(text):
   lmtzr = WordNetLemmatizer()
 
+  # LOCK SECTION (no more changes)
   # prepare text
   text = replace_special_chars(remove_urls(remove_tags(remove_scripts(remove_backslash(text)))))
   # expand contractions
@@ -176,6 +177,7 @@ def process_text(text):
   text = text.translate(string.maketrans("",""), string.punctuation)
   # text tokenized and pos applied
   processedText = pos_tag(word_tokenize(re.sub(" +"," ", text).lower()))
+  # UNLOCK SECTION
   # pos vars
   strId = 0
   posId = 1
@@ -185,6 +187,7 @@ def process_text(text):
   words = []
   maxCount = 1
 
+  # LOCK SECTION (no more changes)
   for word in processedText:
     # get pos
     pos = word[posId][0].lower().replace('j', 'a')
@@ -207,5 +210,6 @@ def process_text(text):
 
   for word in words:
     word["tf"] = round(0.5 + (0.5 * float(word["count"])) / maxCount, 2)
+  # UNLOCK SECTION
 
   return words
