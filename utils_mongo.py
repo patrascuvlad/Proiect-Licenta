@@ -70,6 +70,14 @@ def get_user(username):
     return { 'username': username }
   return None
 
+def get_users():
+  client, table = connect_user_db()
+  users = table.find({}, {'username': 1})
+  listUsers = list(users)
+  client.close()
+
+  return listUsers
+
 def save_user_history(username, times, docs):
   client, table = connect_history_db(username)
   docsFormated = []

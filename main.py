@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import InputRequired, Length
-from utils_mongo import create_user, validate_user, get_user, search_mongodb, save_user_history, get_user_history
+from utils_mongo import create_user, validate_user, get_user, get_users, search_mongodb, save_user_history, get_user_history
 from utils_postgre import search_postgresql
 from werkzeug.security import generate_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -155,8 +155,24 @@ def index():
 @login_required
 def history():
 # UNLOCK SECTION
-  data = get_user_history(current_user.get_id())
-  return render_template("history.html", user=current_user.get_id(), data=data)
+  selectedUser = ''
+  users = []
+  data = []
+  currentUser = current_user.get_id()
+
+  if currentUser == 'admin':
+    users = get_users()
+
+  if request.method == 'POST':
+    if request.form.get('select-user') != '':
+      selectedUser = request.form.get('select-user')
+      data = get_user_history(selectedUser)
+    else:
+      data = get_user_history(currentUser)
+  else:
+    data = get_user_history(currentUser)
+
+  return render_template("history.html", users=users, user=currentUser, selectedUser=selectedUser, data=data)
 
 # LOCK FUNCTION (no more changes)
 @app.route('/login', methods=['GET', 'POST'])

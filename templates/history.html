@@ -6,6 +6,22 @@ Istoric
 
 {% block content %}
   <div class="container">
+    <form {% if not users[0] %} class="hide" {% else %} class="form-horizontal" {% endif %} method="post">
+      <div class="form-group">
+        <label class="col-xs-12 col-sm-2" for="select-user">User</label>
+        <div class="col-xs-12 col-sm-10">
+          <select class="form-control" id="select-user" name="select-user">
+            <option value=""></option>
+            {% for user in users %}
+              <option value="{{user.username}}" {%- if selectedUser == user.username %}  selected="" {% endif %}>
+                {{user.username}}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </form>
+
     <h2>Istoric Filtrari</h2>
 
     <table class="table">
@@ -67,12 +83,16 @@ Istoric
 
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script type="text/javascript">
+    $('select').change(function() { $('form').submit(); });
+
     var data = JSON.parse('{{ data | tojson | safe}}');
+
     $('tr').click(function() {
       var rowId = $('tr').index(this) - 2;
-      var rowData = data[rowId];
-      var rowDocs = rowData['docs']
+      var rowData = data[rowId] || {};
+      var rowDocs = rowData['docs'] || [];
       var modalBody = '';
+
       rowDocs.forEach(function(doc) {
         modalBody += '<tr><td><ul>';
 
