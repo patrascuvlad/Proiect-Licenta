@@ -29,3 +29,6 @@ a.disabled {
 .mb-10 {
   margin-bottom: 10px;
 }
+tr.history {
+  cursor: pointer;
+}

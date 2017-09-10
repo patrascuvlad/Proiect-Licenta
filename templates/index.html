@@ -256,7 +256,7 @@ Dashboard
   <!-- Chart Plugin Import -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.js"></script>
   <!-- Chart Plugin Init -->
-  <script>
+  <script type="text/javascript">
     var times = JSON.parse('{{ times | tojson | safe}}');
     var connectTimes = times['connectTimes'];
     var filterTimes = times['filterTimes'];

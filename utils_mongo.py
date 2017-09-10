@@ -28,12 +28,14 @@ def connect_user_db():
   table = db['users']
   return client, table
 
+def create_table(db, tableName):
+    db[tableName].insert({})
+    db[tableName].remove()
+
 def create_user_tables(db, username):
   if username != "admin":
-    db['twitter_' + username].insert({})
-    db['twitter_' + username].remove()
-    db['history_' + username].insert({})
-    db['history_' + username].remove()
+    create_table(db, 'twitter_' + username)
+    create_table(db, 'history_' + username)
 
 def create_user(user):
   client, table = connect_user_db()
@@ -68,11 +70,36 @@ def get_user(username):
     return { 'username': username }
   return None
 
-def save_user_history(username, times):
+def save_user_history(username, times, docs):
   client, table = connect_history_db(username)
+  docsFormated = []
+  for doc in docs:
+    docId = doc['_id']
+    docObj = {}
+
+    if 'words.word' in docId:
+      docObj['word'] = docId['words.word']
+    if 'location.x' in docId:
+      docObj['x'] = docId['location.x']
+    if 'location.y' in docId:
+      docObj['y'] = docId['location.y']
+    if 'author.gender' in docId:
+      docObj['gender'] = docId['author.gender']
+    if 'author.age' in docId:
+      docObj['age'] = docId['author.age']
+    if 'date' in docId:
+      docObj['date'] = docId['date']
+
+    docsFormated.append({
+      'count': doc['count'],
+      '_id': docObj
+    })
+
   table.insert({
+    '_id': datetime.now().strftime("%Y%m%d%H%M%S%f"),
     'connectTimes': times['connectTimes'],
     'filterTimes': times['filterTimes'],
+    'docs': docsFormated,
     'date': datetime.utcnow()
   })
   client.close()
@@ -80,11 +107,13 @@ def save_user_history(username, times):
 def get_user_history(username):
   client, table = connect_history_db(username)
   docs = table.find({}, {
-      'filterTimes': 1,
-      'connectTimes': 1
-  })
+    'docs': 1,
+    'filterTimes': 1,
+    'connectTimes': 1
+  }).sort('date', -1)
+  listDocs = list(docs)
   client.close()
-  return docs.sort('date', -1)
+  return listDocs
 
 # LOCK FUNCTION (no more changes)
 def populate_mongodb():
@@ -244,7 +273,7 @@ def search_mongodb(selectBy, groupBy):
   # print "MONGO query executed in ", filterTime
 
   listDocs = list(docs)
-  # print listDocs
+  print listDocs
   client.close()
   avgTime /= 5
   print "MONGO avg time: ", avgTime

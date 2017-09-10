@@ -22,8 +22,8 @@ Istoric
         </tr>
       </thead>
       <tbody>
-        {% for entry in history %}
-          <tr>
+        {% for entry in data %}
+          <tr class="history" data-toggle="modal" data-target="#data-modal">
             <td>{{entry.connectTimes[0]}}</td>
             <td>{{entry.connectTimes[1]}}</td>
             <td>{{entry.filterTimes[0]}}</td>
@@ -33,4 +33,86 @@ Istoric
       </tbody>
     </table>
   </div>
+
+  <!-- MODAL -->
+  <div id="data-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Date Filtrate</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Group By</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Inchide</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- MODAL END -->
+
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    var data = JSON.parse('{{ data | tojson | safe}}');
+    $('tr').click(function() {
+      var rowId = $('tr').index(this) - 2;
+      var rowData = data[rowId];
+      var rowDocs = rowData['docs']
+      var modalBody = '';
+      rowDocs.forEach(function(doc) {
+        modalBody += '<tr><td><ul>';
+
+        if (doc._id['word']) {
+          modalBody += '<li>';
+          modalBody += 'Cuvant: ' + doc._id['word'];
+          modalBody += '</li>';
+        }
+        if (doc._id['x']) {
+          modalBody += '<li>';
+          modalBody += 'Coordonata X: ' + doc._id['x'];
+          modalBody += '</li>';
+        }
+        if (doc._id['y']) {
+          modalBody += '<li>';
+          modalBody += 'Coordonata Y: ' + doc._id['y'];
+          modalBody += '</li>';
+        }
+        if (doc._id['gender']) {
+          modalBody += '<li>';
+          modalBody += 'Gen Autor: ';
+          if (doc._id['gender'] == "male") modalBody += 'Masculin';
+          else if (doc._id['gender'] == "female") modalBody += 'Feminin';
+          else modalBody += doc._id['gender'];
+          modalBody += '</li>';
+        }
+        if (doc._id['age']) {
+          modalBody += '<li>';
+          modalBody += 'Varsta Autor: ' + doc._id['age'];
+          modalBody += '</li>';
+        }
+        if (doc._id['date']) {
+          modalBody += '<li>';
+          modalBody += 'Data: ' + doc._id['date'];
+          modalBody += '</li>';
+        }
+
+        modalBody += '</ul></td><td>' + doc.count + '</td></tr>';
+      })
+      $('.modal .modal-body table tbody').html(modalBody);
+    });
+  </script>
 {% endblock %}

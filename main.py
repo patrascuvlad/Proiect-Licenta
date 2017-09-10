@@ -143,19 +143,20 @@ def index():
         'connectTimes': [mongoConnectTime, postgreConnectTime],
         'filterTimes': [mongoFilterTime, postgreFilterTime]
       }
-      save_user_history(current_user.get_id(), times)
+      save_user_history(current_user.get_id(), times, docs)
       flash('Datele au fost filtrate cu succes!', 'info')
       return render_template("index.html", user=current_user.get_id(), form=form, times=times, data=docs)
 
   return render_template("index.html", user=current_user.get_id(), form=form, times={}, data={})
 
 # LOCK SECTION (no more changes)
-@app.route('/history')
+@app.route('/history', methods=['GET', 'POST'])
+# original: @app.route('/history')
 @login_required
 def history():
 # UNLOCK SECTION
-  history = get_user_history(current_user.get_id())
-  return render_template("history.html", user=current_user.get_id(), history=history)
+  data = get_user_history(current_user.get_id())
+  return render_template("history.html", user=current_user.get_id(), data=data)
 
 # LOCK FUNCTION (no more changes)
 @app.route('/login', methods=['GET', 'POST'])
