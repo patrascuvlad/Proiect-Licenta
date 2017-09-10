@@ -32,7 +32,7 @@ def create_table(db, tableName):
     db[tableName].insert({})
     db[tableName].remove()
 
-def create_user_tables(db, username):
+def create_user_tables_mongodb(db, username):
   if username != "admin":
     create_table(db, 'twitter_' + username)
     create_table(db, 'history_' + username)
@@ -44,7 +44,7 @@ def create_user(user):
 
   if not userAlreadyExists:
     table.insert(user)
-    create_user_tables(client['upb'], username)
+    create_user_tables_mongodb(client['upb'], username)
     client.close()
     return True
 

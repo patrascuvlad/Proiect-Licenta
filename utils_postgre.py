@@ -15,6 +15,62 @@ insert_location_query = "INSERT INTO location (id, x, y) VALUES (%s, %s, %s)"
 insert_author_query = "INSERT INTO author (id, age, gender) VALUES (%s, %s, %s)"
 insert_word_query = "INSERT INTO word (id, word) VALUES (%s, %s)"
 
+def create_twitter_query(username):
+  return """CREATE TABLE twitter_%(username)s(
+      id_doc character varying(20) NOT NULL,
+      count integer NOT NULL,
+      tf real NOT NULL,
+      id_word integer NOT NULL,
+      id_date integer NOT NULL,
+      id_author character varying(20) NOT NULL,
+      id_location integer NOT NULL,
+      CONSTRAINT twitter_%(username)s_pkey PRIMARY KEY (id_doc, count, tf, id_word),
+      CONSTRAINT twitter_%(username)s_id_author_fkey FOREIGN KEY (id_author) REFERENCES author_%(username)s(id),
+      CONSTRAINT twitter_%(username)s_id_date_fkey FOREIGN KEY (id_date) REFERENCES date_%(username)s(id),
+      CONSTRAINT twitter_%(username)s_id_doc_fkey FOREIGN KEY (id_doc) REFERENCES doc_%(username)s(id),
+      CONSTRAINT twitter_%(username)s_id_location_fkey FOREIGN KEY (id_location) REFERENCES location_%(username)s(id),
+      CONSTRAINT twitter_%(username)s_id_word_fkey FOREIGN KEY (id_word) REFERENCES word_%(username)s(id)
+    );
+  """ % {'username': username}
+
+def create_author_query(username):
+  return """CREATE TABLE author_%(username)s(
+      id character varying(20) NOT NULL,
+      age integer,
+      gender character varying(10),
+      CONSTRAINT author_%(username)s_pkey PRIMARY KEY (id)
+    );
+  """ % {'username': username}
+def create_date_query(username):
+  return """CREATE TABLE date_%(username)s(
+      id integer NOT NULL,
+      date timestamp without time zone,
+      CONSTRAINT date_%(username)s_pkey PRIMARY KEY (id)
+    );
+  """ % {'username': username}
+def create_doc_query(username):
+  return """CREATE TABLE doc_%(username)s(
+      id character varying(20) NOT NULL,
+      raw_text text,
+      CONSTRAINT doc_%(username)s_pkey PRIMARY KEY (id)
+    );
+  """ % {'username': username}
+def create_location_query(username):
+  return """CREATE TABLE location_%(username)s(
+      id integer NOT NULL,
+      x integer,
+      y integer,
+      CONSTRAINT location_%(username)s_pkey PRIMARY KEY (id)
+    );
+  """ % {'username': username}
+def create_word_query(username):
+  return """CREATE TABLE word_%(username)s(
+      id integer NOT NULL,
+      word text,
+      CONSTRAINT word_%(username)s_pkey PRIMARY KEY (id)
+    );
+  """ % {'username': username}
+
 def connect_postgresql():
   conn = psycopg2.connect("host='localhost' dbname='postgres' user='postgres' password='password'")
   return conn
@@ -41,6 +97,33 @@ def populate_postgresql():
 
   conn.commit()
   conn.close()
+
+def drop_user_tables_postgresql(username):
+  conn = connect_postgresql()
+  cursor = conn.cursor()
+  cursor.execute("DROP TABLE twitter_" + username)
+  cursor.execute("DROP TABLE author_" + username)
+  cursor.execute("DROP TABLE date_" + username)
+  cursor.execute("DROP TABLE doc_" + username)
+  cursor.execute("DROP TABLE location_" + username)
+  cursor.execute("DROP TABLE word_" + username)
+  conn.commit()
+  conn.close()
+
+
+def create_user_tables_postgresql(username):
+  if username != "admin":
+    conn = connect_postgresql()
+    cursor = conn.cursor()
+    cursor.execute(create_author_query(username))
+    cursor.execute(create_date_query(username))
+    cursor.execute(create_doc_query(username))
+    cursor.execute(create_location_query(username))
+    cursor.execute(create_word_query(username))
+    conn.commit()
+    cursor.execute(create_twitter_query(username))
+    conn.commit()
+    conn.close()
 
 # process row for cassandradb function
 def process_postgresql_row(cursor, row, author_dim, word_dim, location_dim, doc_dim, date_dim):
