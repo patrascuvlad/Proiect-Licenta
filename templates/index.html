@@ -154,8 +154,10 @@ Dashboard
       </div>
 
       <div class="col-md-12 no-padding mb-10">
-        <button type="submit" class="btn btn-default pull-right ml-5" name="submit">Filtreaza</button>
-        <button type="submit" class="btn btn-success pull-right ml-5" name="submit" value="import">Import CSV</button>
+        <button type="submit" class="btn btn-default pull-right ml-5" name="submit" value="filter">Filtreaza</button>
+        <label for="file-upload" class="btn btn-success pull-right ml-5">
+          <i class="fa fa-cloud-upload"></i> Import CSV
+        </label>
         <button
           type="button"
           data-toggle="modal"
@@ -171,6 +173,13 @@ Dashboard
       </div>
     </form>
     <!-- FORM SECTION END -->
+
+    <!-- UPLOAD FORM SECTION -->
+    <form id="form-upload" method=post enctype=multipart/form-data>
+      <input id="file-upload" class="hide" type="file" name="file-upload"/>
+      <input class="hide" type="submit" name="submit"/>
+    </form>
+    <!-- UPLOAD FORM SECTION END -->
 
     <!-- CHART SECTION -->
     <div {%- if not times['connectTimes'] or not times['filterTimes'] %} class="hide" {% endif %}>
@@ -304,5 +313,9 @@ Dashboard
     $(".alert-dismissible").delay(4000).slideUp(200, function() {
       $(this).alert('close');
     });
+
+    $('#file-upload').change(function() {
+      $('#form-upload input[type="submit"]').trigger('click');
+    })
   </script>
 {% endblock %}

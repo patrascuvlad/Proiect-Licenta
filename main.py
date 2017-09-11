@@ -1,3 +1,4 @@
+import os
 from flask import Flask, flash, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -7,9 +8,14 @@ from utils_mongo import create_user, validate_user, get_user, get_users, search_
 from utils_postgre import search_postgresql
 from werkzeug.security import generate_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = '/home/patrick-admin/upb/licenta/uploads'
+ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'AppVerySecretKey!'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -43,6 +49,9 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
   username = StringField('Utilizator', validators=[InputRequired(), Length(min=4, max=15)])
   password = PasswordField('Parola', validators=[InputRequired(), Length(min=8, max=80)])
+
+def allowed_file(filename):
+  return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # LOCK SECTION (no more changes)
 @app.route('/', methods=['GET', 'POST'])
@@ -129,10 +138,7 @@ def index():
       mongoGroupBy['date'] = '$date'
       postgreGroupBy += ', ' + 'date'
 
-    if request.form['submit'] == 'import':
-      flash('Datele au fost importate cu succes!', 'success')
-      return render_template("index.html", user=currentUser, form=form, times={}, data={})
-    else:
+    if request.form['submit'] == 'filter':
       print 'Select By ', selectBy
       print 'Mongo Group By ', mongoGroupBy
       print 'Postgre Group By ', postgreGroupBy[1:]
@@ -147,6 +153,26 @@ def index():
       save_user_history(currentUser, times, docs)
       flash('Datele au fost filtrate cu succes!', 'info')
       return render_template("index.html", user=currentUser, form=form, times=times, data=docs)
+    else:
+      print 'Uploading file'
+      print "--------------------------------------------------"
+
+      if 'file-upload' not in request.files:
+        flash('Fisier inexistent!', 'danger')
+        return render_template("index.html", user=currentUser, form=form, times={}, data={})
+      file = request.files['file-upload']
+      if file.filename == '':
+        flash('Fisier neselectat!', 'danger')
+        return render_template("index.html", user=currentUser, form=form, times={}, data={})
+      if file:
+        if not allowed_file(file.filename):
+          flash('Format fisier neacceptat! (numai fisiere .csv)', 'danger')
+          return render_template("index.html", user=currentUser, form=form, times={}, data={})
+        else:
+          filename = secure_filename(file.filename)
+          file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+      flash('Datele au fost importate cu succes!', 'success')
+      return render_template("index.html", user=currentUser, form=form, times={}, data={})
 
   return render_template("index.html", user=currentUser, form=form, times={}, data={})
 
