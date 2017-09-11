@@ -7,13 +7,20 @@ from datetime import datetime
 from text import process_text
 from queries_mongo import *
 from werkzeug.security import check_password_hash
+from utils_postgre import create_user_tables_postgresql
 
 columns = ['_id', 'author', 'age', 'gender', 'geoLocation', 'rawText', 'date']
 
 def connect_mongodb():
   client = pymongo.MongoClient("mongodb://127.0.0.1:27017")
   db = client['upb']
-  table = db['twitter_admin']
+  table = db['twitter']
+  return client, table
+
+def connect_twitter_mongodb(username):
+  client = pymongo.MongoClient("mongodb://127.0.0.1:27017")
+  db = client['upb']
+  table = db['twitter_' + username]
   return client, table
 
 def connect_history_db(username):
@@ -22,7 +29,7 @@ def connect_history_db(username):
   table = db['history_' + username]
   return client, table
 
-def connect_user_db():
+def connect_users_db():
   client = pymongo.MongoClient("mongodb://127.0.0.1:27017")
   db = client['upb']
   table = db['users']
@@ -38,13 +45,14 @@ def create_user_tables_mongodb(db, username):
     create_table(db, 'history_' + username)
 
 def create_user(user):
-  client, table = connect_user_db()
+  client, table = connect_users_db()
   username = user['username']
   userAlreadyExists = table.find({'username': username}).count() > 0;
 
   if not userAlreadyExists:
     table.insert(user)
     create_user_tables_mongodb(client['upb'], username)
+    create_user_tables_postgresql(username)
     client.close()
     return True
 
@@ -52,7 +60,7 @@ def create_user(user):
   return False
 
 def validate_user(user):
-  client, table = connect_user_db()
+  client, table = connect_users_db()
   userObject = table.find_one({ 'username': user['username'] });
   client.close()
 
@@ -62,7 +70,7 @@ def validate_user(user):
   return None
 
 def get_user(username):
-  client, table = connect_user_db()
+  client, table = connect_users_db()
   userObject = table.find_one({ 'username': username })
   client.close()
 
@@ -71,7 +79,7 @@ def get_user(username):
   return None
 
 def get_users():
-  client, table = connect_user_db()
+  client, table = connect_users_db()
   users = table.find({}, {'username': 1})
   listUsers = list(users)
   client.close()
@@ -154,9 +162,9 @@ def process_mongodb_row(row):
   result["words"] = process_text(result["rawText"])
   return result
 
-def search_mongodb(selectBy, groupBy):
+def search_mongodb(username, selectBy, groupBy):
   start = time.time()
-  client, twitterDb = connect_mongodb()
+  client, twitterDb = connect_twitter_mongodb(username)
   end = time.time()
 
   connectTime = end - start

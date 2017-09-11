@@ -178,7 +178,7 @@ def process_postgresql_row(cursor, row, author_dim, word_dim, location_dim, doc_
 
   return facts, author_dim, word_dim, location_dim, doc_dim, date_dim
 
-def search_postgresql(selectBy, groupBy):
+def search_postgresql(username, selectBy, groupBy):
   start = time.time()
   conn = connect_postgresql()
   end = time.time()
@@ -193,7 +193,7 @@ def search_postgresql(selectBy, groupBy):
 
   cursor = conn.cursor()
   whereQuery = ''
-  query = 'select count(*) from (select distinct on (twitter.id_doc) * from twitter'
+  query = 'select count(*) from (select distinct on (twitter_' + username + '.id_doc) * from twitter_' + username
 
   if 'words' in selectBy:
     whereQuery += ' and ' +  query_one_of_words_postgresql(selectBy['words'].split())
@@ -233,13 +233,13 @@ def search_postgresql(selectBy, groupBy):
     joinDate = True
 
   if joinWord:
-    query += ' ' + query_join_word_postgresqp()
+    query += ' ' + query_join_word_postgresqp(username)
   if joinLocation:
-    query += ' ' + query_join_location_postgresqp()
+    query += ' ' + query_join_location_postgresqp(username)
   if joinAuthor:
-    query += ' ' + query_join_author_postgresqp()
+    query += ' ' + query_join_author_postgresqp(username)
   if joinDate:
-    query += ' ' + query_join_date_postgresqp()
+    query += ' ' + query_join_date_postgresqp(username)
   if whereQuery != '':
     query += ' where' + whereQuery[4:]
   query += ') as temp'
@@ -295,7 +295,7 @@ def search_postgresql(selectBy, groupBy):
   avgTime += filterTime
   # print "POSTGRE query executed in ", filterTime
 
-  # print cursor.fetchall()
+  print cursor.fetchall()
   conn.close()
   avgTime /= 5
   print "POSTGRE avg time: ", avgTime

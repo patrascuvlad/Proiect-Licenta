@@ -49,6 +49,7 @@ class RegisterForm(FlaskForm):
 @login_required
 def index():
 # UNLOCK SECTION
+  currentUser = current_user.get_id()
   print 'PROCESSING REQUEST'
   print "--------------------------------------------------"
 
@@ -130,24 +131,24 @@ def index():
 
     if request.form['submit'] == 'import':
       flash('Datele au fost importate cu succes!', 'success')
-      return render_template("index.html", user=current_user.get_id(), form=form, times={}, data={})
+      return render_template("index.html", user=currentUser, form=form, times={}, data={})
     else:
       print 'Select By ', selectBy
       print 'Mongo Group By ', mongoGroupBy
       print 'Postgre Group By ', postgreGroupBy[1:]
       print "--------------------------------------------------"
 
-      mongoConnectTime, mongoFilterTime, docs = search_mongodb(selectBy, mongoGroupBy)
-      postgreConnectTime, postgreFilterTime = search_postgresql(selectBy, postgreGroupBy[1:])
+      mongoConnectTime, mongoFilterTime, docs = search_mongodb(currentUser, selectBy, mongoGroupBy)
+      postgreConnectTime, postgreFilterTime = search_postgresql(currentUser, selectBy, postgreGroupBy[1:])
       times = {
         'connectTimes': [mongoConnectTime, postgreConnectTime],
         'filterTimes': [mongoFilterTime, postgreFilterTime]
       }
-      save_user_history(current_user.get_id(), times, docs)
+      save_user_history(currentUser, times, docs)
       flash('Datele au fost filtrate cu succes!', 'info')
-      return render_template("index.html", user=current_user.get_id(), form=form, times=times, data=docs)
+      return render_template("index.html", user=currentUser, form=form, times=times, data=docs)
 
-  return render_template("index.html", user=current_user.get_id(), form=form, times={}, data={})
+  return render_template("index.html", user=currentUser, form=form, times={}, data={})
 
 # LOCK SECTION (no more changes)
 @app.route('/history', methods=['GET', 'POST'])
