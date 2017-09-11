@@ -144,6 +144,18 @@ def populate_mongodb():
       table.insert(result, continue_on_error=True)
   client.close()
 
+def file_populate_mongodb(username, filename):
+  csv.field_size_limit(sys.maxsize)
+  client, table = connect_twitter_mongodb(username)
+  table.remove()
+  with open('uploads/' + filename, 'rb') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    header = reader.next()
+    for row in reader:
+      result = process_mongodb_row(row)
+      table.insert(result, continue_on_error=True)
+  client.close()
+
 # process row for mongodb function
 # LOCK FUNCTION (no more changes)
 def process_mongodb_row(row):

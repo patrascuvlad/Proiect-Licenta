@@ -4,8 +4,8 @@ from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import InputRequired, Length
-from utils_mongo import create_user, validate_user, get_user, get_users, search_mongodb, save_user_history, get_user_history
-from utils_postgre import search_postgresql
+from utils_mongo import create_user, validate_user, get_user, get_users, search_mongodb, save_user_history, get_user_history, file_populate_mongodb
+from utils_postgre import search_postgresql, file_populate_postgresql
 from werkzeug.security import generate_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename
@@ -171,6 +171,8 @@ def index():
         else:
           filename = secure_filename(file.filename)
           file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+          file_populate_mongodb(currentUser, filename)
+          file_populate_postgresql(currentUser, filename)
       flash('Datele au fost importate cu succes!', 'success')
       return render_template("index.html", user=currentUser, form=form, times={}, data={})
 
